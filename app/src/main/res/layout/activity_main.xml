@@ -1,19 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
     tools:context=".MainActivity">
 
-    <TextView
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+    <EditText
+        android:id="@+id/etName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:inputType="text"
+        android:hint="Zadejte jméno"
+        android:textColor="@color/myColo01"
+        android:layout_weight="1"
+        />
+        <EditText
+            android:id="@+id/etSurname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:hint="Zadejte přijmení"
+            android:textColor="@color/myColo02"
+            android:layout_weight="1" />
+</LinearLayout>
+    <EditText
+        android:id="@+id/etObec"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:hint="Zadejte jméno"
+        android:textColor="@color/myColo03"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <EditText
+        android:id="@+id/etVěk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:hint="Zadejte jméno"
+        android:textColor="@color/myColo01"
+        />
+        <Button
+            android:id="@+id/etSend"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textColor="@color/myColo03"
+            android:layout_weight="4"
+            android:text="Odeslat"/>
+
+        <Button
+            android:id="@+id/etvymazat"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="4"
+            android:text="Vymazat"
+            android:textColor="@color/black"
+            android:backgroundTint="@color/red"/>
+
+
+</LinearLayout>
+
+
+    <TextView
+        android:id="@+id/tvInformation"
+        android:layout_width="374dp"
+        android:layout_height="200dp"
+        android:hint="Informace"
+        android:text="D" />
+
+</LinearLayout>
