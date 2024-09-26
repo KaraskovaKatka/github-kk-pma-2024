@@ -1,3 +1,1 @@
-studentka: Kateřina Karásková
-
-PMA
+studentka: Kateřina karásková
