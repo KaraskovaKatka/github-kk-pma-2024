@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
             val surname = etSurname.text.toString()
             val Obec = etObec.text.toString()
             val Vek=etVek.text.toString()
-            
+
             //zobrazení textu v TextView
             val formattedText="Jmenuji se $name $surname. Je mi $etVek let a moje bydliště je $etObec"
             tvInformation.text = formattedText
