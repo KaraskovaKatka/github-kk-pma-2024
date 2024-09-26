@@ -45,7 +45,7 @@
         android:orientation="horizontal">
 
     <EditText
-        android:id="@+id/etVěk"
+        android:id="@+id/etVek"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="text"
@@ -67,17 +67,24 @@
             android:layout_weight="4"
             android:text="Vymazat"
             android:textColor="@color/black"
-            android:backgroundTint="@color/red"/>
 
+            android:backgroundTint="@color/red"/>
 
 </LinearLayout>
 
 
     <TextView
         android:id="@+id/tvInformation"
-        android:layout_width="374dp"
+        android:layout_width="wrap_content"
         android:layout_height="200dp"
         android:hint="Informace"
-        android:text="D" />
+        android:text="Informace"
+        android:textColor="@color/black"
+        android:backgroundTint="@color/myColo01"
+        app:layout_constraintBottom_toBottom0f="parent"
+        app:layout_constraintBottom_toEnd0f="parent"
+        app:layout_constraintBottom_toStar0f="parent"
+        app:layout_constraintBottom_toTop0f="parent"
+        />
 
 </LinearLayout>
