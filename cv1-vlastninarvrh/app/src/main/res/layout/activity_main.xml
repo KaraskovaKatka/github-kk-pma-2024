@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:gravity="center_horizontal">
+
+        <!-- Pole pro zadání jména hráče -->
+        <EditText
+            android:id="@+id/jmeno_hrace"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Jméno hráče"
+            />
+
+        <!-- Pole pro zadání jména týmu -->
+        <EditText
+            android:id="@+id/jmeno_tymu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Jméno týmu"
+            />
+
+        <!-- Pole pro zadání jména soutěže -->
+        <EditText
+            android:id="@+id/jmeno_souteze"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Jméno soutěže" />
+
+
+        <!-- Pole pro zadání cm LSD kamene po směru -->
+        <EditText
+            android:id="@+id/uspesnost_po_smeru"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Úspěšnost odhodu kamene (cm)"
+            android:inputType="numberDecimal"
+            />
+
+        <!-- Pole pro zadání cm LSD kamene proti směru -->
+        <EditText
+            android:id="@+id/uspesnost_proti_smeru"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Úspěšnost odhodu kamene (cm)"
+            android:inputType="numberDecimal"
+            />
+
+        <!-- Pole pro zadání datumu dne zápasu -->
+        <EditText
+            android:id="@+id/datum_zapasu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Datum"
+            android:inputType="date"
+            />
+
+        <!-- Tlačítko Odeslat -->
+        <Button
+            android:id="@+id/odeslat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Odeslat"
+            android:backgroundTint="#FF9800"
+            android:textColor="#050000"
+            android:layout_gravity="center_horizontal"/>
+    </LinearLayout>
+    
+</LinearLayout>
