@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    tools:context=".MainActivity">
+
+    <!-- Title Text -->
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Jaký kaktus si chceš objednat?"
+        android:textSize="16dp"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:paddingBottom="20dp" />
+
+    <!-- Radio Group pro kaktusy -->
+    <RadioGroup
+        android:id="@+id/druhykaktusu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center">
+
+        <RadioButton
+            android:id="@+id/kaktus1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="kaktus 1"
+            android:checked="true"/>
+
+        <RadioButton
+            android:id="@+id/kaktus2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="kaktus 2" />
+
+        <RadioButton
+            android:id="@+id/kaktus3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="kaktus 3" />
+    </RadioGroup>
+
+    <!-- Checkboxes  -->
+    <CheckBox
+        android:id="@+id/checkBoxVelikost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="malý kulatý pichlavý"
+        android:paddingTop="16dp"
+        />
+
+    <CheckBox
+        android:id="@+id/checkBoxTvar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="víc šišatý a pichlavý " />
+
+    <CheckBox
+        android:id="@+id/checkBoxVzhled"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="hladký, vysoký, elegantní" />
+
+    <!-- Objednávací tlačítko  -->
+    <Button
+        android:id="@+id/orderButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OBJEDNAT KAKTUS"
+        android:backgroundTint="#4CAF50"
+        android:textColor="#070000"
+        android:layout_gravity="center"
+        android:paddingTop="20dp" />
+
+    <!-- souhrn -->
+    <TextView
+        android:id="@+id/summaryText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Souhrn objednávky:"
+        android:paddingTop="16dp"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <!-- Obrázek Kaktusu -->
+    <ImageView
+        android:id="@+id/bikeImage"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:src="@drawable/kaktus1"
+        android:layout_gravity="center"
+        android:scaleType="centerInside"
+        android:contentDescription="obrazky kaktusu"
+        android:paddingTop="20dp"
+        />
+</LinearLayout>
