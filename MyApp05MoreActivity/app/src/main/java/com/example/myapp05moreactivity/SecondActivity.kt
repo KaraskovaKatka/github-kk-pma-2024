@@ -16,6 +16,7 @@ class SecondActivity : AppCompatActivity() {
 
         val twInfo = findViewById<TextView>(R.id.twInfo)
 
+
         //načtení dat z internetu
         val nickname = intent.getStringExtra("NICK_NAME")
         twInfo.text = nickname

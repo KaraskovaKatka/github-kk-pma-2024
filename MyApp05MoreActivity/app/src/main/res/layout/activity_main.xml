@@ -9,7 +9,14 @@
     android:orientation="vertical"
     android:padding="16sp"
     >
-    
+    <!-- Přidání Toolbaru nahoře -->
+    <Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:title="Hlavní stránka"
+        />
+
     <EditText
         android:id="@+id/etNickname"
         android:layout_width="match_parent"
@@ -24,8 +31,4 @@
         android:layout_height="wrap_content"
         android:text="Odeslat data"
 />
-
-
-
-
 </LinearLayout>
