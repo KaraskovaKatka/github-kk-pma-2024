@@ -129,7 +129,7 @@ fun ComposePerson() {
                 onValueChange = { heightInput ->
                     if (heightInput.text.all { char -> char.isDigit() }
                         && heightInput.text.toIntOrNull()?.let { it in 0..250 } == true) {
-                        age = heightInput
+                        height = heightInput
                     }
                 },
                 label = { Text("Výška (v cm, mezi 50 a 250)") },
@@ -143,7 +143,7 @@ fun ComposePerson() {
             ) {
                 Button(
                     onClick = {
-                        resultText = "Jmenuji se ${name.text} ${surname.text}. Je mi ${age.text} let a moje bydliště je ${place.text}."
+                        resultText = "Jmenuji se ${name.text} ${surname.text}. Je mi ${age.text} let, měřím ${height.text } a moje bydliště je ${place.text}. E-mailová adresa je ${email.text}"
                     },
                     modifier = Modifier.weight(1f)
                 ) {
@@ -156,6 +156,8 @@ fun ComposePerson() {
                         surname = TextFieldValue("")
                         age = TextFieldValue("")
                         place = TextFieldValue("")
+                        height = TextFieldValue("")
+                        email = TextFieldValue("")
                         resultText = ""
                     },
                     modifier = Modifier.weight(1f),
