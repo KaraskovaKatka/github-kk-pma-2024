@@ -1,5 +1,6 @@
 package com.example.myapp06toastsnackbar
 
+import android.graphics.Color
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.widget.Toast
@@ -27,15 +28,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Nastavení akce pro tlačítko Snackbar
-        binding.sbtShowSnackbar.setOnClickListener {
-            Snackbar.make(binding.root, "já jsem Snackbar", Snackbar.LENGTH_LONG)
-               // Nastavení akce pro Snakebar
+        binding.btnShowSnackbar.setOnClickListener {
+
+            Snackbar.make(binding.root, "Já jsem SNACKBAR",Snackbar.LENGTH_SHORT)
                 .setDuration(7000)
-                .setAction("zavřít") {
-                    Toast.makeText(this, "zavírám Snackbar", Toast.LENGTH_SHORT).show()
+                .setBackgroundTint(Color.parseColor("#FF35AA"))
+                .setTextColor(Color.BLACK)
+                .setActionTextColor(Color.WHITE)
+                .setAction("Zavřít") {
+                    Toast.makeText(this, "Zavírám SNACKBAR", Toast.LENGTH_SHORT).show()
                 }
 
-            .show()
+                .show()
         }
 
     }}
