@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Zdravím z Fragmentu 2. Já jsem lepší" />
+        android:text="@string/hello_blank_fragment_2" />
 
     <TextView
         android:layout_width="match_parent"

@@ -25,8 +25,6 @@ class MainActivity : AppCompatActivity() {
             replaceFragment(Fragment2())
         }
 
-setContentView(R.layout.activity_main)
-
 
     }
 
