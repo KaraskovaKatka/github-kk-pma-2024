@@ -1,47 +1,43 @@
-package com.example.myapp09datastore
-
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.myapp09datastore.ui.theme.MyApp09DataStoreTheme
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.example.myapp09datastore.R
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private val viewModel: UserViewModel by viewModels {
+        UserViewModelFactory(UserPreferencesRepository(applicationContext))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            MyApp09DataStoreTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+        setContentView(R.layout.activity_main)
+
+        val editTextUserName = findViewById<EditText>(R.id.edit_text_user_name)
+        val buttonSave = findViewById<Button>(R.id.button_save)
+        val textViewUserName = findViewById<TextView>(R.id.text_view_user_name)
+
+        lifecycleScope.launchWhenStarted {
+            viewModel.userName.collect { userName ->
+                textViewUserName.text = userName ?: "Your name will appear here"
             }
+        }
+
+        buttonSave.setOnClickListener {
+            val userName = editTextUserName.text.toString()
+            viewModel.saveUserName(userName)
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+class UserViewModelFactory(userPreferencesRepository: UserPreferencesRepository) :
+    ViewModelProvider.Factory {
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MyApp09DataStoreTheme {
-        Greeting("Android")
-    }
 }
