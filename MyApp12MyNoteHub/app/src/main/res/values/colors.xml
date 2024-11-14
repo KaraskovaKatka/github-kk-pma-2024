@@ -7,4 +7,13 @@
     <color name="cardBackgroundColor">#FFFFFF</color>
     <color name="primaryTextColor">#000000</color>
     <color name="secondaryTextColor">#757575</color>
+    <color name="errorColor">#B00020</color>
+    <color name="onPrimary">#FFFFFF</color>
+    <color name="onSecondary">#000000</color>
+    <color name="onError">#FFFFFF</color>
+    <color name="background">#FFFFFF</color>
+    <color name="surface">#FFFFFF</color>
+
+
+
 </resources>
