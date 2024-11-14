@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.myapp12mynotehub"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.myapp12mynotehub"
@@ -48,6 +48,8 @@ dependencies {
     // If this project uses any Kotlin source, use Kotlin Symbol Processing (KSP)
     // See [Add the KSP plugin to your project](https://developer.android.com/build/migrate-to-ksp#add-ksp)
 
+    // optional - Kotlin Extensions and Coroutines support for Room
+    implementation("androidx.room:room-ktx:$room_version")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
