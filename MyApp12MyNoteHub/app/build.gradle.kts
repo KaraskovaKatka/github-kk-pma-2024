@@ -47,7 +47,7 @@ dependencies {
 
     // If this project uses any Kotlin source, use Kotlin Symbol Processing (KSP)
     // See [Add the KSP plugin to your project](https://developer.android.com/build/migrate-to-ksp#add-ksp)
-    ksp("androidx.room:room-compiler:$room_version")
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
