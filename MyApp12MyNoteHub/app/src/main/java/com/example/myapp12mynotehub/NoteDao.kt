@@ -27,3 +27,7 @@ interface NoteDao {
     fun getAllNotes(): Flow<List<Note>>
 
 }
+
+// Definice DAO pro práci s poznámkami
+// DAO je objekt, který obsahuje metody pro interakci s databází
+//
