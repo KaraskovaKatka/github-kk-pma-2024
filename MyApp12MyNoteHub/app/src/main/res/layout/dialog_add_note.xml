@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    app:cardElevation="8dp"
+    app:cardCornerRadius="16dp">
 
     <!-- Label pro kategorii -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Kategorie"
+        android:text="@string/kategorie"
         android:textStyle="bold"
         android:layout_marginTop="16dp" />
 
@@ -26,7 +29,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Štítky"
+        android:text="@string/t_tky"
         android:textStyle="bold"
         android:layout_marginTop="16dp" />
 
@@ -35,7 +38,9 @@
         android:id="@+id/editTextTags"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Vyberte štítky"
+        android:autofillHints="Vyberte štítky"
         android:focusable="false"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"
+        android:inputType="TODO"
+        tools:ignore="LabelFor,TextFields" />
 </LinearLayout>
