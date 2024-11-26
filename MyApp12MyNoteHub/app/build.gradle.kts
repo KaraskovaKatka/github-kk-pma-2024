@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.myapp12mynotehub"
+    namespace = "com.example.myapp014amynotehub"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.myapp12mynotehub"
+        applicationId = "com.example.myapp014amynotehub"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -34,6 +34,7 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
     buildFeatures {
         viewBinding = true
     }
@@ -46,20 +47,16 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.runner)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
     val room_version = "2.6.1"
 
     implementation("androidx.room:room-runtime:$room_version")
 
-    // If this project uses any Kotlin source, use Kotlin Symbol Processing (KSP)
-    // See [Add the KSP plugin to your project](https://developer.android.com/build/migrate-to-ksp#add-ksp)
-
-    // optional - Kotlin Extensions and Coroutines support for Room
     implementation("androidx.room:room-ktx:$room_version")
 
+    // If this project uses any Kotlin source, use Kotlin Symbol Processing (KSP)
+    // See [Add the KSP plugin to your project](https://developer.android.com/build/migrate-to-ksp#add-ksp)
     ksp("androidx.room:room-compiler:$room_version")
 }

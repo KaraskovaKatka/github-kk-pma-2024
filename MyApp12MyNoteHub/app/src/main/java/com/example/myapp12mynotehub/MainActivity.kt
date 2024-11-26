@@ -7,17 +7,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapp12mynotehub.databinding.ActivityMainBinding
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var binding: ActivityMainBinding
     private lateinit var noteAdapter: NoteAdapter
     private lateinit var database: NoteHubDatabase
-    private lateinit var noteDao: NoteDao
-    private lateinit var categoryDao: CategoryDao
-    private lateinit var tagDao: TagDao
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,28 +36,83 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         //noteAdapter = NoteAdapter(getSampleNotes())
 
-        noteAdapter = NoteAdapter(emptyList(), object : (Note) -> Unit {
-            override fun invoke(note: Note) {
-                deleteNote(note)
-            }
-        })
-
-
-        binding.fabAddNote.setOnClickListener {
-            showAddNoteDialog()
-        }
+        //noteAdapter = NoteAdapter(emptyList()) // Inicializace s prázdným seznamem
+        //binding.recyclerView.adapter = noteAdapter
 
         // Vložení testovacích dat
-        insertSampleNotes()
+        //insertSampleNotes()
 
         // Načtení poznámek z databáze
         loadNotes()
 
-        // Vložení výchozích kategorií a štítků do databáze
-        insertDefaultCategories()
-        insertDefaultTags()
+        binding.fabAddNote.setOnClickListener {
+            showAddNoteDialog()
+        }
     }
 
+    private fun loadNotes() {
+        lifecycleScope.launch {
+            database.noteDao().getAllNotes().collect { notes ->
+                noteAdapter = NoteAdapter(
+                    notes,
+                    onDeleteClick = { note -> deleteNote(note) },
+
+                    )
+                binding.recyclerView.adapter = noteAdapter
+            }
+        }
+    }
+
+    private fun NoteAdapter(notes: List<Note>, onDeleteClick: Function<Unit>): NoteAdapter {
+
+    }
+
+    private fun insertSampleNotes() {
+        lifecycleScope.launch {
+            val sampleNotes = listOf(
+                Note(title = "Vzorek 1", content = "Obsah první testovací poznámky"),
+                Note(title = "Vzorek 2", content = "Obsah druhé testovací poznámky"),
+                Note(title = "Vzorek 3", content = "Obsah třetí testovací poznámky")
+            )
+            sampleNotes.forEach { database.noteDao().insert(it) }
+        }
+    }
+
+    private fun showAddNoteDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_note, null)
+        val titleEditText = dialogView.findViewById<EditText>(R.id.editTextTitle)
+        val contentEditText = dialogView.findViewById<EditText>(R.id.editTextContent)
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Přidat poznámku")
+            .setView(dialogView)
+            .setPositiveButton("Přidat") { _, _ ->
+                val title = titleEditText.text.toString()
+                val content = contentEditText.text.toString()
+                addNoteToDatabase(title, content)
+            }
+            .setNegativeButton("Zrušit", null)
+            .create()
+
+        dialog.show()
+    }
+
+    private fun addNoteToDatabase(title: String, content: String) {
+        lifecycleScope.launch {
+            val newNote = Note(title = title, content = content)
+            database.noteDao().insert(newNote)  // Vloží poznámku do databáze
+            loadNotes()  // Aktualizuje seznam poznámek
+        }
+    }
+
+    private fun getSampleNotes(): List<Note> {
+        // Testovací seznam poznámek
+        return listOf(
+            Note(title = "Poznámka 1", content = "Obsah první poznámky"),
+            Note(title = "Poznámka 2", content = "Obsah druhé poznámky"),
+            Note(title = "Poznámka 3", content = "Obsah třetí poznámky")
+        )
+    }
 
     private fun insertDefaultCategories() {
         lifecycleScope.launch {
@@ -97,18 +150,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showAddNoteDialog() {
+    private fun editNote(note: Note) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_note, null)
         val titleEditText = dialogView.findViewById<EditText>(R.id.editTextTitle)
         val contentEditText = dialogView.findViewById<EditText>(R.id.editTextContent)
 
+        // Předvyplnění stávajících dat poznámky
+        titleEditText.setText(note.title)
+        contentEditText.setText(note.content)
+
         val dialog = AlertDialog.Builder(this)
-            .setTitle("Přidat poznámku")
+            .setTitle("Upravit poznámku")
             .setView(dialogView)
-            .setPositiveButton("Přidat") { _, _ ->
-                val title = titleEditText.text.toString()
-                val content = contentEditText.text.toString()
-                addNoteToDatabase(title, content)
+            .setPositiveButton("Uložit") { _, _ ->
+                val updatedTitle = titleEditText.text.toString()
+                val updatedContent = contentEditText.text.toString()
+
+                // Aktualizace poznámky v databázi
+                lifecycleScope.launch {
+                    val updatedNote = note.copy(title = updatedTitle, content = updatedContent)
+                    database.noteDao().update(updatedNote)  // Uloží aktualizovanou poznámku
+                    loadNotes()  // Načte a aktualizuje seznam poznámek
+                }
             }
             .setNegativeButton("Zrušit", null)
             .create()
@@ -116,44 +179,4 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun addNoteToDatabase(title: String, content: String) {
-
-        lifecycleScope.launch {
-            val newNote = Note(title = title, content = content)
-            database.noteDao().insert(newNote)  // Vloží poznámku do databáze
-            loadNotes()  // Aktualizuje seznam poznámek
-        }
-    }
-
-    private fun loadNotes() {
-        lifecycleScope.launch {
-            database.noteDao().getAllNotes().collect { notes ->
-                noteAdapter.updateNotes(notes)  // Aktualizace poznámek v adapteru
-            }
-        }
-    }
-
-
-
-    private fun insertSampleNotes() {
-        lifecycleScope.launch {
-            val sampleNotes = listOf(
-                Note(title = "Vzorek 1", content = "Obsah první testovací poznámky"),
-                Note(title = "Vzorek 2", content = "Obsah druhé testovací poznámky"),
-                Note(title = "Vzorek 3", content = "Obsah třetí testovací poznámky")
-            )
-            sampleNotes.forEach { database.noteDao().insert(it) }
-        }
-    }
-
-    /*private fun getSampleNotes(): List<Note> {
-        // Testovací seznam poznámek
-        return listOf(
-            Note(title = "Poznámka 1", content = "Obsah první poznámky"),
-            Note(title = "Poznámka 2", content = "Obsah druhé poznámky"),
-            Note(title = "Poznámka 3", content = "Obsah třetí poznámky")
-        )
-    }*/
-
-
-}
+}}

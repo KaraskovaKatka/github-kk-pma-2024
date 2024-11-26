@@ -16,3 +16,17 @@ abstract class NoteHubDatabase : RoomDatabase() {
     abstract fun tagDao(): TagDao
     abstract fun noteTagDao(): NoteTagDao
 }
+
+class CategoryDao {
+    fun getAllCategories(): Any {
+        TODO("Not yet implemented")
+
+    }
+
+    fun insert(it: Category) {
+        TODO("Not yet implemented")
+    }
+
+}
+
+
