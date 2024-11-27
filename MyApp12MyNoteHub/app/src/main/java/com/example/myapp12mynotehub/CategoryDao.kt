@@ -1,226 +1,62 @@
 package com.example.myapp12mynotehub
 
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Update
 import com.example.myapp12mynotehub.databinding.ActivityMainBinding
+
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 
-class MainActivity : AppCompatActivity() {
+@Dao
+interface CategoryDao() : Parcelable {
+    constructor(parcel: Parcel) : this() {
+    }
 
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var noteAdapter: NoteAdapter
-    private lateinit var database: NoteHubDatabase
-    private lateinit var notes: List<Note>
-    private lateinit var categories: List<Category>
-    private lateinit var tags: List<Tag>
-    private lateinit var noteTags: List<NoteTagCrossRef>
+    @Insert
+    suspend fun insert(category: Category)
 
+    @Update
+    suspend fun update(category: Category)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    @Delete
+    suspend fun delete(category: Category)
 
+    @Query("SELECT * FROM category_table ORDER BY name ASC")
+    fun getAllCategories(): Flow<List<Category>>
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    @Query("SELECT * FROM category_table WHERE name = :categoryName LIMIT 1")
+    fun getCategoryByName(categoryName: String): Category?
 
-        // Inicializace databáze
-        database = NoteHubDatabaseInstance.getDatabase(this)
+    @Query("SELECT * FROM category_table WHERE id = :categoryId LIMIT 1")
+    fun getCategoryById(categoryId: Int): Category?
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
 
-        // Vložení výchozích kategorií a štítků do databáze
-        insertDefaultCategories()
-        insertDefaultTags()
+    }
 
-        // Inicializace RecyclerView
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        //noteAdapter = NoteAdapter(getSampleNotes())
+    override fun describeContents(): Int {
+        return 0
+    }
 
-        //noteAdapter = NoteAdapter(emptyList()) // Inicializace s prázdným seznamem
-        //binding.recyclerView.adapter = noteAdapter
+    companion object CREATOR : Parcelable.Creator<CategoryDao> {
+        override fun createFromParcel(parcel: Parcel): CategoryDao {
+            return CategoryDao(parcel)
+        }
 
-        // Vložení testovacích dat
-        //insertSampleNotes()
-
-        // Načtení poznámek z databáze
-        loadNotes()
-
-        binding.fabAddNote.setOnClickListener {
-            showAddNoteDialog()
+        override fun newArray(size: Int): Array<CategoryDao?> {
+            return arrayOfNulls(size)
         }
     }
-
-    private fun loadNotes() {
-        lifecycleScope.launch {
-            database.noteDao().getAllNotes().collect { notes ->
-                noteAdapter = NoteAdapter(
-                    notes,
-                    onDeleteClick = { note -> deleteNote(note) },
-                    onEditClick = { note -> editNote(note) }
-                )
-                binding.recyclerView.adapter = noteAdapter
-            }
-        }
-    }
-
-    private fun insertSampleNotes() {
-        lifecycleScope.launch {
-            val sampleNotes = listOf(
-                Note(title = "Vzorek 1", content = "Obsah první testovací poznámky"),
-                Note(title = "Vzorek 2", content = "Obsah druhé testovací poznámky"),
-                Note(title = "Vzorek 3", content = "Obsah třetí testovací poznámky")
-            )
-            sampleNotes.forEach { database.noteDao().insert(it) }
-        }
-    }
-
-    private fun showAddNoteDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_add_note, null)
-        val titleEditText = dialogView.findViewById<EditText>(R.id.editTextTitle)
-        val contentEditText = dialogView.findViewById<EditText>(R.id.editTextContent)
-
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("Přidat poznámku")
-            .setView(dialogView)
-            .setPositiveButton("Přidat") { _, _ ->
-                val title = titleEditText.text.toString()
-                val content = contentEditText.text.toString()
-                addNoteToDatabase(title, content)
-            }
-            .setNegativeButton("Zrušit", null)
-            .create()
-
-        dialog.show()
-    }
-
-    private fun addNoteToDatabase(title: String, content: String) {
-        lifecycleScope.launch {
-            val newNote = Note(title = title, content = content)
-            database.noteDao().insert(newNote)  // Vloží poznámku do databáze
-            loadNotes()  // Aktualizuje seznam poznámek
-        }
-    }
-
-    private fun getSampleNotes(): List<Note> {
-        // Testovací seznam poznámek
-        return listOf(
-            Note(title = "Poznámka 1", content = "Obsah první poznámky"),
-            Note(title = "Poznámka 2", content = "Obsah druhé poznámky"),
-            Note(title = "Poznámka 3", content = "Obsah třetí poznámky")
-        )
-    }
-
-    private fun insertDefaultCategories() {
-        lifecycleScope.launch {
-            val existingCategories = database.categoryDao().getAllCategories()
-                .first()  // Použití first() pro získání seznamu
-            if (existingCategories.isEmpty()) {
-                val defaultCategories = listOf(
-                    Category(name = "Práce"),
-                    Category(name = "Osobní"),
-                    Category(name = "Nápady")
-                )
-                defaultCategories.forEach { database.categoryDao().insert(it) }
-            }
-        }
-    }
-
-    private fun insertDefaultTags() {
-        lifecycleScope.launch {
-            val existingTags =
-                database.tagDao().getAllTags().first()  // Použití first() pro získání seznamu
-            if (existingTags.isEmpty()) {
-                val defaultTags = listOf(
-                    Tag(name = "Důležité"),
-                    Tag(name = "Rychlé úkoly"),
-                    Tag(name = "Projekt"),
-                    Tag(name = "Nápad")
-                )
-                defaultTags.forEach { database.tagDao().insert(it) }
-            }
-        }
-    }
-
-    private fun deleteNote(note: Note) {
-        lifecycleScope.launch {
-            database.noteDao().delete(note)  // Smazání poznámky z databáze
-            loadNotes()  // Aktualizace seznamu poznámek
-        }
-    }
-
-    private fun editNote(note: Note) {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_add_note, null)
-        val titleEditText = dialogView.findViewById<EditText>(R.id.editTextTitle)
-        val contentEditText = dialogView.findViewById<EditText>(R.id.editTextContent)
-
-        // Předvyplnění stávajících dat poznámky
-        titleEditText.setText(note.title)
-        contentEditText.setText(note.content)
-
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("Upravit poznámku")
-            .setView(dialogView)
-            .setPositiveButton("Uložit") { _, _ ->
-                val updatedTitle = titleEditText.text.toString()
-                val updatedContent = contentEditText.text.toString()
-
-                // Aktualizace poznámky v databázi
-                lifecycleScope.launch {
-                    val updatedNote = note.copy(title = updatedTitle, content = updatedContent)
-                    database.noteDao().update(updatedNote)  // Uloží aktualizovanou poznámku
-                    loadNotes()  // Načte a aktualizuje seznam poznámek
-                }
-            }
-            .setNegativeButton("Zrušit", null)
-            .create()
-
-        dialog.show()
-    }
-
 }
-
-// ... (imports) ...
-class MainActivity : AppCompatActivity() {
-
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var noteAdapter: NoteAdapter
-    private lateinit var database: NoteHubDatabase
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        // ... (other code) ...
-
-        noteAdapter =
-            NoteAdapter(emptyList(), onDeleteClick = { /*...*/ }, onEditClick = { /*...*/ })
-        binding.recyclerView.adapter = noteAdapter
-
-        // ... (other code) ...
-    }
-
-    // ... (other functions) ...
-
-    private fun loadNotes() {
-        lifecycleScope.launch {
-            database.noteDao().getAllNotes().collect { notes ->
-                noteAdapter.updateNotes(notes) // Assuming you add an updateNotes() function to NoteAdapter
-            }
-        }
-    }
-
-    // ... (other functions) ...
-}
-
-private fun Any.isEmpty(): Boolean {
-    TODO("Not yet implemented")
-
-}
-
-private fun Any.first(): Any {
-    TODO("Not yet implemented")
-
-}
-
-

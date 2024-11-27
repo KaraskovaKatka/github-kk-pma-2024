@@ -1,26 +1,49 @@
 package com.example.myapp12mynotehub
 
-import android.app.AlertDialog
+import android.R
+import android.content.res.Configuration
 import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.Spinner
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myapp014amynotehub.databinding.ActivityMainBinding
+import com.example.myapp12mynotehub.Category
+import com.example.myapp12mynotehub.Note
+import com.example.myapp12mynotehub.NoteAdapter
+import com.example.myapp12mynotehub.R
+import com.example.myapp12mynotehub.database.CategoryDao
+import com.example.myapp12mynotehub.database.NoteHubDatabase
+import com.example.myapp12mynotehub.database.NoteHubDatabaseInstance
+import com.example.myapp12mynotehub.database.NoteTagDao
 import com.example.myapp12mynotehub.databinding.ActivityMainBinding
+import com.example.myapp12mynotehub.models.NoteTagCrossRef
+import com.example.myapp12mynotehub.models.Tag
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-
+import kotlinx.coroutines.withContext
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var noteAdapter: NoteAdapter
     private lateinit var database: NoteHubDatabase
+    private lateinit var categoryDao: CategoryDao
+    private lateinit var noteTagDao: NoteTagDao
 
+    private var selectedCategory: String? = null
+    private var selectedTags = mutableListOf<String>()
+    private var currentLanguage = "cs"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -31,6 +54,9 @@ class MainActivity : AppCompatActivity() {
         // Vložení výchozích kategorií a štítků do databáze
         insertDefaultCategories()
         insertDefaultTags()
+
+        setupCategoryFilter()
+        setupTagFilter()
 
         // Inicializace RecyclerView
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
@@ -48,33 +74,243 @@ class MainActivity : AppCompatActivity() {
         binding.fabAddNote.setOnClickListener {
             showAddNoteDialog()
         }
+
+        binding.switchLanguageButton.setOnClickListener {
+            switchLanguage()
+        }
     }
 
-    private fun loadNotes() {
-        lifecycleScope.launch {
-            database.noteDao().getAllNotes().collect { notes ->
-                noteAdapter = NoteAdapter(
-                    notes,
-                    onDeleteClick = { note -> deleteNote(note) },
+    private fun switchLanguage() {
+        currentLanguage = if (currentLanguage == "en") "cs" else "en"
+        setLocale(currentLanguage)
+    }
 
-                    )
-                binding.recyclerView.adapter = noteAdapter
+    private fun setLocale(languageCode: String) {
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+
+        val config = Configuration()
+        config.setLocale(locale)
+
+        // Vytvoření nového kontextu s novou konfigurací
+        val context = createConfigurationContext(config)
+
+        // Aktualizace prostředí pro binding a další prvky
+        resources.updateConfiguration(config, resources.displayMetrics)
+
+        // Obnovení textů uživatelského rozhraní
+        updateUITexts()
+
+        // Znovu načtení seznamů z databáze
+        setupCategoryFilter()
+        setupTagFilter()
+        loadNotes()
+    }
+
+    private fun updateUITexts() {
+        binding.appTitle.text = getString(R.string.app_title)
+        binding.filterTagsButton.text = getString(R.string.filter_tags_button)
+        binding.switchLanguageButton.text = getString(R.string.switch_language_button)
+        binding.fabAddNote.contentDescription = getString(R.string.fab_add_note)
+    }
+
+
+    private fun setupCategoryFilter() {
+        lifecycleScope.launch {
+            val categories = database.categoryDao().getAllCategories().first()
+            val allCategoriesText = getString(R.string.all_categories)
+            val categoryNames = listOf(allCategoriesText) + categories.map { it.name }
+            val categoryAdapter = ArrayAdapter(this@MainActivity, R.layout.spinner_item, categoryNames)
+            categoryAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+            binding.filterCategorySpinner.adapter = categoryAdapter
+
+            binding.filterCategorySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                    selectedCategory = if (position == 0) null else categoryNames[position]
+                    loadNotes()
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {
+                    selectedCategory = null
+                    loadNotes()
+                }
             }
         }
     }
 
-    private fun NoteAdapter(notes: List<Note>, onDeleteClick: Function<Unit>): NoteAdapter {
+    private fun setupTagFilter() {
+        binding.filterTagsButton.setOnClickListener {
+            lifecycleScope.launch {
+                val tags = database.tagDao().getAllTags().first()
+                val tagNames = tags.map { it.name }.toTypedArray()
+                val checkedItems = BooleanArray(tagNames.size) { i -> selectedTags.contains(tagNames[i]) }
 
+                AlertDialog.Builder(this@MainActivity)
+                    .setTitle(getString(R.string.select_tags))
+                    .setMultiChoiceItems(tagNames, checkedItems) { _, which, isChecked ->
+                        if (isChecked) {
+                            selectedTags.add(tagNames[which])
+                        } else {
+                            selectedTags.remove(tagNames[which])
+                        }
+                    }
+                    .setPositiveButton("OK") { _, _ -> loadNotes() }
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .show()
+            }
+        }
     }
 
-    private fun insertSampleNotes() {
+    private fun loadNotes() {
         lifecycleScope.launch {
-            val sampleNotes = listOf(
-                Note(title = "Vzorek 1", content = "Obsah první testovací poznámky"),
-                Note(title = "Vzorek 2", content = "Obsah druhé testovací poznámky"),
-                Note(title = "Vzorek 3", content = "Obsah třetí testovací poznámky")
+            var notes = database.noteDao().getAllNotes().first()
+
+            // Filtrace podle kategorie
+            if (selectedCategory != null) {
+                notes = notes.filter { note ->
+                    val category = database.categoryDao().getAllCategories().first().find { it.id == note.categoryId }
+                    category?.name == selectedCategory
+                }
+            }
+
+            // Filtrace podle štítků
+            if (selectedTags.isNotEmpty()) {
+                notes = notes.filter { note ->
+                    val noteTags = database.noteTagDao().getTagsForNote(note.id).first().map { it.name }
+                    selectedTags.any { it in noteTags }
+                }
+            }
+
+            noteAdapter = NoteAdapter(
+                notes,
+                onDeleteClick = { note -> deleteNote(note) },
+                onEditClick = { note -> showEditNoteDialog(note) },
+                getCategoryName = { categoryId -> getCategoryNameForNote(categoryId) },
+                getTagsForNote = { noteId -> getTagsForNoteFromDatabase(noteId) },
+                lifecycleScope = lifecycleScope
             )
-            sampleNotes.forEach { database.noteDao().insert(it) }
+            binding.recyclerView.adapter = noteAdapter
+
+        }
+    }
+
+    private suspend fun getCategoryNameForNote(categoryId: Int?): String {
+        return withContext(Dispatchers.IO) {
+            categoryId?.let {
+                database.categoryDao().getCategoryById(it)?.name ?: "Bez kategorie"
+            } ?: "Bez kategorie"
+        }
+    }
+
+    private suspend fun getTagsForNoteFromDatabase(noteId: Int): List<String> {
+        return withContext(Dispatchers.IO) {
+            val tags = database.noteTagDao().getTagsForNote(noteId).first()
+            tags.map { it.name }
+        }
+    }
+
+    private fun showEditNoteDialog(note: Note) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_note, null)
+        val titleEditText = dialogView.findViewById<EditText>(R.id.editTextTitle)
+        val contentEditText = dialogView.findViewById<EditText>(R.id.editTextContent)
+        val categorySpinner = dialogView.findViewById<Spinner>(R.id.spinnerCategory)
+        val tagsEditText = dialogView.findViewById<EditText>(R.id.editTextTags)
+
+        // Nastavení aktuálních hodnot poznámky
+        titleEditText.setText(note.title)
+        contentEditText.setText(note.content)
+
+        // Načtení kategorií do Spinneru a nastavení aktuální kategorie
+        lifecycleScope.launch {
+            val categories = database.categoryDao().getAllCategories().first()
+            val categoryNames = categories.map { it.name }
+            val categoryAdapter = ArrayAdapter(this@MainActivity, R.layout.simple_spinner_item, categoryNames)
+            categoryAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+            categorySpinner.adapter = categoryAdapter
+            val currentCategory = categories.find { it.id == note.categoryId }?.name
+            val categoryPosition = categoryNames.indexOf(currentCategory)
+            if (categoryPosition >= 0) {
+                categorySpinner.setSelection(categoryPosition)
+            }
+        }
+
+        // Načtení štítků a nastavení vybraných štítků
+        var selectedTags = mutableListOf<String>()
+        tagsEditText.setOnClickListener {
+            lifecycleScope.launch {
+                val tags = database.tagDao().getAllTags().first()
+                val tagNames = tags.map { it.name }.toTypedArray()
+                val checkedItems = BooleanArray(tagNames.size) { i ->
+                    // Označení aktuálních štítků
+                    val tag = tags[i]
+                    database.noteTagDao().getTagsForNote(note.id).first().any { it.id == tag.id }
+                }
+
+                AlertDialog.Builder(this@MainActivity)
+                    .setTitle(getString(R.string.select_tags))
+                    .setMultiChoiceItems(tagNames, checkedItems) { _, which, isChecked ->
+                        if (isChecked) {
+                            selectedTags.add(tagNames[which])
+                        } else {
+                            selectedTags.remove(tagNames[which])
+                        }
+                    }
+                    .setPositiveButton("OK") { _, _ ->
+                        tagsEditText.setText(selectedTags.joinToString(", "))
+                    }
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .show()
+            }
+        }
+
+        // Zobrazení dialogu pro úpravu poznámky
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(getString(R.string.dialog_edit_note_title))
+            .setView(dialogView)
+            .setPositiveButton(getString(R.string.save)) { _, _ ->
+                val updatedTitle = titleEditText.text.toString()
+                val updatedContent = contentEditText.text.toString()
+                val selectedCategory = categorySpinner.selectedItem.toString()
+                updateNoteInDatabase(note, updatedTitle, updatedContent, selectedCategory, selectedTags)
+            }
+            .setNegativeButton(getString(R.string.cancel), null)
+            .create()
+
+        dialog.show()
+    }
+
+    private fun updateNoteInDatabase(note: Note, title: String, content: String, categoryName: String, selectedTags: List<String>) {
+        lifecycleScope.launch {
+            // Získání ID kategorie podle názvu
+            val category = database.categoryDao().getAllCategories().first().find { it.name == categoryName }
+            val categoryId = category?.id
+
+            // Aktualizace poznámky v databázi
+            val updatedNote = note.copy(title = title, content = content, categoryId = categoryId)
+            database.noteDao().update(updatedNote)
+
+            // Aktualizace štítků spojených s poznámkou
+            val noteTags = database.noteTagDao().getTagsForNote(note.id).first()
+            val tagNames = noteTags.map { it.name }
+
+            // Přidání nových štítků
+            selectedTags.forEach { tagName ->
+                if (tagName !in tagNames) {
+                    val tag = database.tagDao().getAllTags().first().find { it.name == tagName }
+                    if (tag != null) {
+                        database.noteTagDao().insert(NoteTagCrossRef(noteId = note.id, tagId = tag.id))
+                    }
+                }
+            }
+
+            // Odstranění odstraněných štítků
+            noteTags.forEach { tag ->
+                if (tag.name !in selectedTags) {
+                    database.noteTagDao().deleteNoteTagCrossRef(NoteTagCrossRef(noteId = note.id, tagId = tag.id))
+                }
+            }
+
+            loadNotes()  // aktualizuju
         }
     }
 
@@ -82,41 +318,92 @@ class MainActivity : AppCompatActivity() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_note, null)
         val titleEditText = dialogView.findViewById<EditText>(R.id.editTextTitle)
         val contentEditText = dialogView.findViewById<EditText>(R.id.editTextContent)
+        val categorySpinner = dialogView.findViewById<Spinner>(R.id.spinnerCategory)
+        val tagsEditText = dialogView.findViewById<EditText>(R.id.editTextTags)
 
+        // Načtení kategorií do Spinneru
+        lifecycleScope.launch {
+            val categories = database.categoryDao().getAllCategories().first()
+            val categoryNames = categories.map { it.name }
+            val categoryAdapter = ArrayAdapter(this@MainActivity, R.layout.simple_spinner_item, categoryNames)
+            categoryAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+            categorySpinner.adapter = categoryAdapter
+        }
+
+        // MultiChoice dialog pro výběr štítků
+        var selectedTags = mutableListOf<String>()
+        tagsEditText.setOnClickListener {
+            lifecycleScope.launch {
+                val tags = database.tagDao().getAllTags().first()
+                val tagNames = tags.map { it.name }.toTypedArray()
+                val checkedItems = BooleanArray(tagNames.size)
+
+                AlertDialog.Builder(this@MainActivity)
+                    .setTitle(getString(R.string.select_tags))
+                    .setMultiChoiceItems(tagNames, checkedItems) { _, which, isChecked ->
+                        if (isChecked) {
+                            selectedTags.add(tagNames[which])
+                        } else {
+                            selectedTags.remove(tagNames[which])
+                        }
+                    }
+                    .setPositiveButton("OK") { _, _ ->
+                        tagsEditText.setText(selectedTags.joinToString(", "))
+                    }
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .show()
+            }
+        }
+
+        // Zobrazení dialogu pro přidání poznámky
         val dialog = AlertDialog.Builder(this)
-            .setTitle("Přidat poznámku")
+            .setTitle(getString(R.string.dialog_add_note_title))
             .setView(dialogView)
-            .setPositiveButton("Přidat") { _, _ ->
+            .setPositiveButton(getString(R.string.fab_add_note)) { _, _ ->
                 val title = titleEditText.text.toString()
                 val content = contentEditText.text.toString()
-                addNoteToDatabase(title, content)
+                val selectedCategory = categorySpinner.selectedItem.toString()
+                addNoteToDatabase(title, content, selectedCategory, selectedTags)
             }
-            .setNegativeButton("Zrušit", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .create()
 
         dialog.show()
     }
 
-    private fun addNoteToDatabase(title: String, content: String) {
+    private fun addNoteToDatabase(title: String, content: String, categoryName: String, selectedTags: List<String>) {
         lifecycleScope.launch {
-            val newNote = Note(title = title, content = content)
-            database.noteDao().insert(newNote)  // Vloží poznámku do databáze
+            // Získat ID kategorie podle názvu
+            val category = database.categoryDao().getAllCategories().first().find { it.name == categoryName }
+            val categoryId = category?.id
+
+            // Vložit poznámku do databáze
+            val newNote = Note(title = title, content = content, categoryId = categoryId)
+            val noteId = database.noteDao().insert(newNote).toInt() // Vložení poznámky a převod ID na Int
+
+            // Vložení štítků spojených s poznámkou do křížové tabulky
+            selectedTags.forEach { tagName ->
+                val tag = database.tagDao().getAllTags().first().find { it.name == tagName }
+                if (tag != null) {
+                    database.noteTagDao().insert(NoteTagCrossRef(noteId = noteId, tagId = tag.id))
+                }
+            }
+
             loadNotes()  // Aktualizuje seznam poznámek
         }
     }
 
-    private fun getSampleNotes(): List<Note> {
-        // Testovací seznam poznámek
-        return listOf(
-            Note(title = "Poznámka 1", content = "Obsah první poznámky"),
-            Note(title = "Poznámka 2", content = "Obsah druhé poznámky"),
-            Note(title = "Poznámka 3", content = "Obsah třetí poznámky")
-        )
+
+    private fun deleteNote(note: Note) {
+        lifecycleScope.launch {
+            database.noteDao().delete(note)  // Smazání poznámky z databáze
+            loadNotes()  // Aktualizace seznamu poznámek
+        }
     }
 
     private fun insertDefaultCategories() {
         lifecycleScope.launch {
-            val existingCategories = database.categoryDao().getAllCategories().first()  // Použití first() pro získání seznamu
+            val existingCategories = database.categoryDao().getAllCategories().first()
             if (existingCategories.isEmpty()) {
                 val defaultCategories = listOf(
                     Category(name = "Práce"),
@@ -143,40 +430,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun deleteNote(note: Note) {
-        lifecycleScope.launch {
-            database.noteDao().delete(note)  // Smazání poznámky z databáze
-            loadNotes()  // Aktualizace seznamu poznámek
-        }
+    override fun toString(): String {
+        return "MainActivity(binding=$binding, noteAdapter=$noteAdapter, database=$database, categoryDao=$categoryDao, noteTagDao=$noteTagDao, selectedCategory=$selectedCategory, selectedTags=$selectedTags, currentLanguage='$currentLanguage')"
     }
-
-    private fun editNote(note: Note) {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_add_note, null)
-        val titleEditText = dialogView.findViewById<EditText>(R.id.editTextTitle)
-        val contentEditText = dialogView.findViewById<EditText>(R.id.editTextContent)
-
-        // Předvyplnění stávajících dat poznámky
-        titleEditText.setText(note.title)
-        contentEditText.setText(note.content)
-
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("Upravit poznámku")
-            .setView(dialogView)
-            .setPositiveButton("Uložit") { _, _ ->
-                val updatedTitle = titleEditText.text.toString()
-                val updatedContent = contentEditText.text.toString()
-
-                // Aktualizace poznámky v databázi
-                lifecycleScope.launch {
-                    val updatedNote = note.copy(title = updatedTitle, content = updatedContent)
-                    database.noteDao().update(updatedNote)  // Uloží aktualizovanou poznámku
-                    loadNotes()  // Načte a aktualizuje seznam poznámek
-                }
-            }
-            .setNegativeButton("Zrušit", null)
-            .create()
-
-        dialog.show()
-    }
-
-}}
+}

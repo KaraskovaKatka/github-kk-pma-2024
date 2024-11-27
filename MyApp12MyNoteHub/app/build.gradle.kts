@@ -36,8 +36,17 @@ android {
     }
 
     buildFeatures {
+        compose =  true
         viewBinding = true
+        dataBinding = true
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.1"
+    }
+packaging{
+    resources{
+        excludes.add("/META-INF/{AL2.0,LGPL2.1}")
+}
 }
 
 dependencies {
@@ -59,4 +68,6 @@ dependencies {
     // If this project uses any Kotlin source, use Kotlin Symbol Processing (KSP)
     // See [Add the KSP plugin to your project](https://developer.android.com/build/migrate-to-ksp#add-ksp)
     ksp("androidx.room:room-compiler:$room_version")
+}
+
 }
