@@ -1,119 +1,60 @@
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginVertical="8dp"
-    android:layout_marginHorizontal="16dp"
-    app:cardElevation="4dp"
-    app:cardCornerRadius="12dp"
-    app:cardBackgroundColor="@color/cardBackgroundColor">
+    android:padding="16dp"
+    app:cardBackgroundColor="@color/cardBackgroundColor"
+    android:layout_marginHorizontal="14sp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingVertical="10sp"
+        android:paddingHorizontal="14sp">
 
-        <!-- Název poznámky -->
         <TextView
             android:id="@+id/note_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/edit_text_title_hint"
+            android:text="Název Poznámky"
             android:textColor="@color/primaryTextColor"
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <!-- Obsah poznámky -->
         <TextView
             android:id="@+id/note_content_preview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/part_of_note"
+            android:text="Úryvek obsahu poznámky"
             android:maxLines="2"
             android:ellipsize="end"
             android:textColor="@color/secondaryTextColor"
             android:textSize="14sp"
             android:layout_marginTop="4dp" />
 
-        <!-- Kategorie poznámky -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp"
-            android:gravity="center_vertical">
-
-            <ImageView
-                android:id="@+id/category_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/baseline_menu_24"
-                android:contentDescription="@string/icon_of_category"
-                app:tint="@color/primaryColor" />
-
-            <TextView
-                android:id="@+id/note_category"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/category_label"
-                android:textColor="@color/primaryTextColor"
-                android:textSize="14sp" />
-        </LinearLayout>
-
-        <!-- Štítky poznámky -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="4dp"
-            android:gravity="center_vertical">
-
-            <ImageView
-                android:id="@+id/tags_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/baseline_bookmark_border_24"
-                android:contentDescription="Ikona štítků"
-                app:tint="@color/secondaryTextColor" />
-
-            <TextView
-                android:id="@+id/note_tags"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/tags_label"
-                android:textColor="@color/secondaryTextColor"
-                android:textSize="14sp" />
-        </LinearLayout>
-
-        <!-- Ikony pro úpravu a smazání poznámky -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end"
-            android:layout_marginTop="8dp">
-
+            android:orientation="horizontal">
+            <!-- Ikonka pro editaci -->
             <ImageView
                 android:id="@+id/icon_edit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
                 android:src="@drawable/baseline_edit_24"
-                android:contentDescription="Upravit poznámku"
-                app:tint="@color/primaryColor" />
+                android:contentDescription="Upravit poznámku" />
 
+            <!-- Ikonka pro mazání -->
             <ImageView
                 android:id="@+id/icon_delete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
                 android:src="@drawable/baseline_delete_24"
-                android:contentDescription="Smazat poznámku"
-                app:tint="@color/errorColor" />
+                android:contentDescription="Smazat poznámku" />
         </LinearLayout>
 
     </LinearLayout>
