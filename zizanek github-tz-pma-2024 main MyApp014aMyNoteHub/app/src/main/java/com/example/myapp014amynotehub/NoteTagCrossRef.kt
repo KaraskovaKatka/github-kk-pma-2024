@@ -8,3 +8,5 @@ data class NoteTagCrossRef(
     val noteId: Int,  // ID poznámky
     val tagId: Int    // ID štítku
 )
+
+

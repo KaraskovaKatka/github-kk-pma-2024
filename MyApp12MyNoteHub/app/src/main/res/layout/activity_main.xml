@@ -20,7 +20,7 @@
         android:layout_alignParentEnd="true"
         android:layout_margin="16dp"
         android:contentDescription="Přidat poznámku"
-        android:src="@drawable/edit_icon"
+        android:src="@drawable/baseline_edit_24"
         app:backgroundTint="@color/primaryColor"
         app:tint="#ffffff" />
 </RelativeLayout>

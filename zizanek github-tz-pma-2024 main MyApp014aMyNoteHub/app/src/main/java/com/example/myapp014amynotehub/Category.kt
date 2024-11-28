@@ -9,3 +9,5 @@ data class Category(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,  // Automaticky generované ID kategorie
     val name: String  // Název kategorie
 )
+
+
