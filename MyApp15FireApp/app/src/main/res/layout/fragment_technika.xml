@@ -1,0 +1,157 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Hlavní nadpis -->
+    <TextView
+        android:id="@+id/technika_title"
+        style="@style/MainHeading"
+        android:text="TECHNIKA"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:paddingBottom="16dp" />
+
+    <!-- Tabulka -->
+    <TableLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:stretchColumns="1,2,3,4">
+
+        <!-- Hlavička tabulky -->
+        <TableRow>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:padding="6dp"
+                android:text="Označení"
+                android:textColor="@color/red"
+                android:textStyle="bold"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:gravity="center"
+                android:padding="6dp"
+                android:text="Celý název"
+                android:textColor="@color/red"
+                android:textStyle="bold"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:padding="6dp"
+                android:text="Kapacita vozidla"
+                android:textColor="@color/red"
+                android:textStyle="bold"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:padding="6dp"
+                android:text="Řidičské oprávnění"
+                android:textColor="@color/red"
+                android:textStyle="bold"
+                />
+        </TableRow>
+
+        <!-- Data - 1. řádek -->
+        <TableRow>
+
+            <TextView
+                android:padding="8dp"
+                android:text="CAS 20" />
+
+            <TextView
+                android:padding="8dp"
+                android:text="Tatra 815-7 " />
+
+            <TextView
+                android:padding="8dp"
+                android:text="3+1" />
+
+            <TextView
+                android:padding="8dp"
+                android:text="C" />
+        </TableRow>
+
+        <!-- Data - 2. řádek -->
+        <TableRow>
+
+            <TextView
+                android:padding="8dp"
+                android:text="CAS 30" />
+
+            <TextView
+                android:padding="8dp"
+                android:text="Tatra 815-7 " />
+
+            <TextView
+                android:padding="8dp"
+                android:text="2+1" />
+
+            <TextView
+                android:padding="8dp"
+                android:text="C" />
+        </TableRow>
+
+        <!-- Data - 3. řádek -->
+        <TableRow>
+
+            <TextView
+                android:padding="8dp"
+                android:text="DA" />
+
+            <TextView
+                android:padding="8dp"
+                android:text="Ford Transit DA" />
+
+            <TextView
+                android:padding="8dp"
+                android:text="8+1" />
+
+            <TextView
+                android:padding="8dp"
+                android:text="B" />
+        </TableRow>
+
+        <!-- Data - 4. řádek -->
+        <TableRow>
+
+            <TextView
+                android:padding="8dp"
+                android:text="RZA" />
+
+            <TextView
+                android:padding="8dp"
+                android:text="Škoda Octavia RZA" />
+
+            <TextView
+                android:padding="8dp"
+                android:text="4+1" />
+
+            <TextView
+                android:padding="8dp"
+                android:text="B" />
+        </TableRow>
+
+    </TableLayout>
+</LinearLayout>
