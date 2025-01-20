@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="MainHeading">
+        <item name="android:textSize">32sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/red</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:paddingBottom">16dp</item>
+    </style>
+</resources>

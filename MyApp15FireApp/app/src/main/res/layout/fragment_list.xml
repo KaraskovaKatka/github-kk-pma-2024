@@ -1,0 +1,47 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Hlavní nadpis -->
+    <TextView
+        android:id="@+id/list_heading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="VÝJEZDY"
+        style="@style/MainHeading" />
+
+    <!-- Vyhledávací pole -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingBottom="16dp">
+
+        <EditText
+            android:id="@+id/search_field"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="hledat"
+            android:backgroundTint="@color/red"
+            android:padding="12dp" />
+
+        <ImageButton
+            android:id="@+id/search_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/search_icon"
+            android:background="?attr/selectableItemBackground"
+            android:padding="8dp" />
+    </LinearLayout>
+
+    <!-- Seznam výjezdů -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>
